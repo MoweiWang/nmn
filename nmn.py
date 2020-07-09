@@ -1,8 +1,5 @@
 
 # coding: utf-8
-
-# In[115]:
-
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -11,16 +8,11 @@ from torch.autograd import Variable
 import numpy as np
 import random as rd
 
-
-# In[116]:
-
 #样本数
 Xn = 10000
 
 
 # # 生成数据
-
-# In[117]:
 
 def add_m(x, y):
     return (x+y)
@@ -58,17 +50,14 @@ print(get_data(5))
 
 def get_result(fs, ds):
     assert len(fs) == len(ds)
-    d0 = 0
+    d0 = 0 # always start from 0
     for i in range(len(ds)):
         func = int2func[fs[i]]
         d1 = ds[i]
         d0 = func(d0, d1)
     return d0
 
-print(get_result([1,2,3,1], [1, 3,2,4]))
-
-
-# In[118]:
+print(get_result([1,2,3,1], [1, 3, 2, 4]))
 
 funcs = [] #计算链
 datas = [] #待计算数据
@@ -83,8 +72,6 @@ for i in range(0, Xn):
 
 
 # # 定义模型
-
-# In[121]:
 
 #每个模块是一个三层的神经网络，relu激活函数
 class Model(nn.Module):
@@ -119,25 +106,20 @@ class ModuleNet(nn.Module):
     #         d1               d1
     def forward(self, fs, ds):
         assert len(fs)==len(ds)
-        d0 = Variable(torch.Tensor([0]))
+        d0 = Variable(torch.Tensor([0.]))
         ds = Variable(torch.Tensor(ds))
         for i in range(len(fs)):
-            d1 = ds[i]
+            d1 = ds[i].view(1)
             invar = torch.cat((d0, d1))
             module = self.int2module[fs[i]]
             d0 = module(invar)
         return d0
 
 
-# In[122]:
-
 #实例化模块网络，定义损失函数优化器
 modulenet = ModuleNet()
 lose_fn = torch.nn.MSELoss()
 optimizer = optim.SGD(modulenet.parameters(), lr=0.001, momentum=0.9)
-
-
-# In[123]:
 
 ys = Variable(torch.Tensor(ys))
 t = Variable(torch.Tensor([0.2, 0.3]))
@@ -157,19 +139,12 @@ for epo in range(100):
                 print("add: ", modulenet.add_model(t))
                 print("minus: ", modulenet.minus_model(t))
                 print("multiply: ", modulenet.multiply_model(t))
-            print(epo, i, loss.data[0])
+            print(epo, i, loss.data.item())
 
 
-# In[128]:
 
 #测试单个模块是否学习结果是否符合预期
 t = Variable(torch.Tensor([0.01, 0.03]))
 print("add: ", modulenet.add_model(t))
 print("minus: ", modulenet.minus_model(t))
 print("multiply: ", modulenet.multiply_model(t))
-
-
-# In[ ]:
-
-
-
